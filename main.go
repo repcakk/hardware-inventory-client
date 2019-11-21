@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
@@ -48,11 +49,19 @@ func getPnpDeviceID() string {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	gpuName := string(cmd)
-	gpuName = strings.Replace(gpuName, "PNPDeviceID", "", 1)
-	gpuName = strings.Replace(gpuName, "\n", "", 1)
-	gpuName = strings.TrimSpace(gpuName)
-	return gpuName
+	pnpDeviceID := string(cmd)
+	pnpDeviceID = strings.Replace(pnpDeviceID, "PNPDeviceID", "", 1)
+	pnpDeviceID = strings.Replace(pnpDeviceID, "\n", "", 1)
+	pnpDeviceID = strings.TrimSpace(pnpDeviceID)
+
+	splittedID := strings.Split(pnpDeviceID, "&")
+
+	gpuSN, err := strconv.ParseUint(splittedID[4], 16, 64)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return strconv.FormatUint(gpuSN, 10)
 }
 
 func getHostname() string {
