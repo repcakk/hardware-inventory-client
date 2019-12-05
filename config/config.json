@@ -1,5 +1,7 @@
 {
-    "serverIP": "localhost",
-    "port": "8080",
-    "username": "example-user"
+    "serverIP": "********",
+    "port": "********",
+    "username": "********",
+    "surname": "********",
+    "email": "********"
 }

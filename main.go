@@ -19,6 +19,8 @@ type Config struct {
 	ServerIP string `json:"serverIP"`
 	Port     string `json:"port"`
 	Username string `json:"username"`
+	Surname  string `json:"surname"`
+	Email    string `json:"email"`
 }
 
 func loadConfig(file string) Config {
@@ -74,22 +76,45 @@ func getHostname() string {
 	return hostname
 }
 
+func getMac() string {
+	cmd, err := exec.Command("cmd", "/C", "getmac").CombinedOutput()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	resultString := strings.Replace(string(cmd), "Physical Address", "", 1)
+	resultString = strings.Replace(resultString, "Transport Name", "", 1)
+	resultString = strings.Replace(resultString, "=", "", -1)
+	resultString = strings.TrimSpace(resultString)
+
+	mac := strings.Split(resultString, " ")[0]
+	mac = strings.TrimSpace(mac)
+
+	return mac
+}
+
 func updateDataOnServer() {
 
+	macAddress := getMac()
 	hostname := getHostname()
 	gpuSN := getPnpDeviceID()
 	gpuName := getGpuName()
 	username := config.Username
+	surname := config.Surname
+	email := config.Email
 
 	var serverAddress string = "http://" + config.ServerIP + ":" + config.Port
 	var requestString string = serverAddress + "/update"
 	requestString = strings.TrimSpace(requestString)
 
 	formData := url.Values{
-		"hostname": {hostname},
-		"username": {username},
-		"gpuSN":    {gpuSN},
-		"gpuName":  {gpuName},
+		"macAddress": {macAddress},
+		"hostname":   {hostname},
+		"username":   {username},
+		"surname":    {surname},
+		"email":      {email},
+		"gpuSN":      {gpuSN},
+		"gpuName":    {gpuName},
 	}
 	_, err := http.PostForm(requestString, formData)
 
